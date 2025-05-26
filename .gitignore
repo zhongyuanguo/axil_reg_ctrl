@@ -1,0 +1,3 @@
+sim/clean_*.sh
+sim/*/
+src/ipgen/
