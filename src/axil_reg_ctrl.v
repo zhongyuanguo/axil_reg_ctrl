@@ -1,3 +1,6 @@
+
+`timescale 1ns/1ns
+
 module axil_reg_ctrl (
 input   wire                            axil_aclk,
 input   wire                            axil_aresetn,
@@ -106,7 +109,7 @@ axi_bram_ctrl_1kx32 u_axil_ctrl (
 .s_axi_aclk                             (axil_aclk),
 .s_axi_aresetn                          (axil_aresetn),
 
-.s_axi_awaddr                           (s_axil_awaddr [11:0]),
+.s_axi_awaddr                           (s_axil_awaddr[11:0]),
 .s_axi_awprot                           (s_axil_awprot[2:0]),
 .s_axi_awvalid                          (s_axil_awvalid),
 .s_axi_awready                          (s_axil_awready),
@@ -118,8 +121,8 @@ axi_bram_ctrl_1kx32 u_axil_ctrl (
 .s_axi_bvalid                           (s_axil_bvalid),
 .s_axi_bready                           (s_axil_bready),
 
-.s_axi_araddr                           (s_axil_araddr [11:0]),
-.s_axi_arprot                           (s_axil_arprot [2:0]),
+.s_axi_araddr                           (s_axil_araddr[11:0]),
+.s_axi_arprot                           (s_axil_arprot[2:0]),
 .s_axi_arvalid                          (s_axil_arvalid),
 .s_axi_arready                          (s_axil_arready),
 .s_axi_rdata                            (s_axil_rdata[31:0]),

@@ -27,6 +27,30 @@ wire        [1:0]               m_axil_rresp;
 wire                            m_axil_rvalid;
 wire                            m_axil_rready;
 
+wire        [31:0]              s_reg_axil_awaddr;
+wire        [2:0]               s_reg_axil_awprot;
+wire                            s_reg_axil_awvalid;
+wire                            s_reg_axil_awready;
+
+wire        [31:0]              s_reg_axil_wdata;
+wire        [3:0]               s_reg_axil_wstrb;
+wire                            s_reg_axil_wvalid;
+wire                            s_reg_axil_wready;
+
+wire        [1:0]               s_reg_axil_bresp;
+wire                            s_reg_axil_bvalid;
+wire                            s_reg_axil_bready;
+
+wire        [31:0]              s_reg_axil_araddr;
+wire        [2:0]               s_reg_axil_arprot;
+wire                            s_reg_axil_arvalid;
+wire                            s_reg_axil_arready;
+
+wire        [31:0]              s_reg_axil_rdata;
+wire        [1:0]               s_reg_axil_rresp;
+wire                            s_reg_axil_rvalid;
+wire                            s_reg_axil_rready;
+
 reg         [31:0]              s_axil_awaddr;
 reg         [2:0]               s_axil_awprot;
 reg                             s_axil_awvalid;
@@ -52,12 +76,57 @@ wire                            s_axil_rvalid;
 reg                             s_axil_rready;
 
 reg                             axil_aclk=0;
-reg                             axil_aresetn=1;
+reg                             axil_aresetn;
 
 reg         [31:0]              reg_data;
 
 wire                            m_axil_aclk;
 wire                            m_axil_aresetn;
+
+network u_network (
+.M00_AXI4L_araddr               (s_reg_axil_araddr[31:0]),
+.M00_AXI4L_arprot               (s_reg_axil_arprot[2:0]),
+.M00_AXI4L_arready              (s_reg_axil_arready),
+.M00_AXI4L_arvalid              (s_reg_axil_arvalid),
+.M00_AXI4L_awaddr               (s_reg_axil_awaddr[31:0]),
+.M00_AXI4L_awprot               (s_reg_axil_awprot[2:0]),
+.M00_AXI4L_awready              (s_reg_axil_awready),
+.M00_AXI4L_awvalid              (s_reg_axil_awvalid),
+.M00_AXI4L_bready               (s_reg_axil_bready),
+.M00_AXI4L_bresp                (s_reg_axil_bresp[1:0]),
+.M00_AXI4L_bvalid               (s_reg_axil_bvalid),
+.M00_AXI4L_rdata                (s_reg_axil_rdata[31:0]),
+.M00_AXI4L_rready               (s_reg_axil_rready),
+.M00_AXI4L_rresp                (s_reg_axil_rresp[1:0]),
+.M00_AXI4L_rvalid               (s_reg_axil_rvalid),
+.M00_AXI4L_wdata                (s_reg_axil_wdata[31:0]),
+.M00_AXI4L_wready               (s_reg_axil_wready),
+.M00_AXI4L_wstrb                (s_reg_axil_wstrb[3:0]),
+.M00_AXI4L_wvalid               (s_reg_axil_wvalid),
+
+.S00_AXI4L_araddr               (s_axil_araddr[31:0]),
+.S00_AXI4L_arprot               (s_axil_arprot[2:0]),
+.S00_AXI4L_arready              (s_axil_arready),
+.S00_AXI4L_arvalid              (s_axil_arvalid),
+.S00_AXI4L_awaddr               (s_axil_awaddr[31:0]),
+.S00_AXI4L_awprot               (s_axil_arprot[2:0]),
+.S00_AXI4L_awready              (s_axil_awready),
+.S00_AXI4L_awvalid              (s_axil_awvalid),
+.S00_AXI4L_bready               (s_axil_bready),
+.S00_AXI4L_bresp                (s_axil_bresp[1:0]),
+.S00_AXI4L_bvalid               (s_axil_bvalid),
+.S00_AXI4L_rdata                (s_axil_rdata[31:0]),
+.S00_AXI4L_rready               (s_axil_rready),
+.S00_AXI4L_rresp                (s_axil_rresp[1:0]),
+.S00_AXI4L_rvalid               (s_axil_rvalid),
+.S00_AXI4L_wdata                (s_axil_wdata[31:0]),
+.S00_AXI4L_wready               (s_axil_wready),
+.S00_AXI4L_wstrb                (s_axil_wstrb[3:0]),
+.S00_AXI4L_wvalid               (s_axil_wvalid),
+
+.aclk                           (axil_aclk),
+.aresetn                        (axil_aresetn));
+
 
 axil_reg_ctrl DUT (
 .axil_aclk                      (axil_aclk),
@@ -66,27 +135,29 @@ axil_reg_ctrl DUT (
 .m_axil_aclk                    (m_axil_aclk),
 .m_axil_aresetn                 (m_axil_aresetn),
 
-.s_axil_awaddr                  (s_axil_awaddr[11:0]),
-.s_axil_awvalid                 (s_axil_awvalid),
-.s_axil_awready                 (s_axil_awready),
+.s_axil_awaddr                  (s_reg_axil_awaddr[11:0]),
+.s_axil_awprot                  (s_reg_axil_awprot[2:0]),
+.s_axil_awvalid                 (s_reg_axil_awvalid),
+.s_axil_awready                 (s_reg_axil_awready),
 
-.s_axil_wdata                   (s_axil_wdata[31:0]),
-.s_axil_wstrb                   (s_axil_wstrb[3:0]),
-.s_axil_wvalid                  (s_axil_wvalid),
-.s_axil_wready                  (s_axil_wready),
+.s_axil_wdata                   (s_reg_axil_wdata[31:0]),
+.s_axil_wstrb                   (s_reg_axil_wstrb[3:0]),
+.s_axil_wvalid                  (s_reg_axil_wvalid),
+.s_axil_wready                  (s_reg_axil_wready),
 
-.s_axil_bresp                   (s_axil_bresp[1:0]),
-.s_axil_bvalid                  (s_axil_bvalid),
-.s_axil_bready                  (s_axil_bready),
+.s_axil_bresp                   (s_reg_axil_bresp[1:0]),
+.s_axil_bvalid                  (s_reg_axil_bvalid),
+.s_axil_bready                  (s_reg_axil_bready),
 
-.s_axil_araddr                  (s_axil_araddr[11:0]),
-.s_axil_arvalid                 (s_axil_arvalid),
-.s_axil_arready                 (s_axil_arready),
+.s_axil_araddr                  (s_reg_axil_araddr[11:0]),
+.s_axil_arprot                  (s_reg_axil_arprot[2:0]),
+.s_axil_arvalid                 (s_reg_axil_arvalid),
+.s_axil_arready                 (s_reg_axil_arready),
 
-.s_axil_rdata                   (s_axil_rdata[31:0]),
-.s_axil_rresp                   (s_axil_rresp[1:0]),
-.s_axil_rvalid                  (s_axil_rvalid),
-.s_axil_rready                  (s_axil_rready),
+.s_axil_rdata                   (s_reg_axil_rdata[31:0]),
+.s_axil_rresp                   (s_reg_axil_rresp[1:0]),
+.s_axil_rvalid                  (s_reg_axil_rvalid),
+.s_axil_rready                  (s_reg_axil_rready),
 
 .m_axil_awaddr                  (m_axil_awaddr[11:0]),
 .m_axil_awvalid                 (m_axil_awvalid),
@@ -156,14 +227,18 @@ s_axil_araddr   = 32'h0;
 s_axil_arvalid  = 1'b0;
 s_axil_arprot   = 3'h0;
 
-axil_aclk       = 0;
+s_axil_rready   = 1'b0;
+
+
 axil_aresetn    = 1;
 #100
 axil_aresetn    = 0;
 #400
 axil_aresetn    = 1;
 
+#100
 // ONE WRITE AND ONE CHECK
+
 
 m_axil_byte_check(32'h200, 32'h11223344, 4'hF);
 m_axil_byte_check(32'h204, 32'h55667788, 4'hF);
@@ -174,6 +249,9 @@ m_axil_byte_check(32'h300, 32'h11223344, 4'h3);
 m_axil_byte_check(32'h304, 32'h55667788, 4'h3);
 m_axil_byte_check(32'h308, 32'h99aabbcc, 4'h3);
 m_axil_byte_check(32'h30c, 32'hddeeff00, 4'h3);
+
+#400
+$finish;
 
 end
 
@@ -190,6 +268,7 @@ begin
     wait (s_axil_awready);
     @(posedge axil_aclk);
     s_axil_awvalid <= 0;
+
 end
 endtask
 
@@ -203,6 +282,7 @@ begin
     s_axil_wdata <= data;
     s_axil_wstrb <= strb;
     s_axil_wvalid <= s_axil_wready? 1:0;
+//    s_axil_wvalid <= 1;
 
     s_axil_bready <= 0;
 
@@ -276,27 +356,28 @@ begin
 
     wr_addr = {1'b1, 15'h0, addr[15:0]};
     // Write Data REG Setting
-    m_axil_write(32'hC, data, strb);
+    m_axil_write(32'h44A0000C, data, strb);
     $display("Write 0x%h in 0x%b to 0xC, Write Data REG", data, strb);
     // Write Address REG Setting
-    m_axil_write(32'h8, wr_addr, 4'b1111);
+    m_axil_write(32'h44A00008, wr_addr, 4'b1111);
     $display("Write 0x%h in 0x%b to 0x8, Write Addr REG", wr_addr, 4'b1111);
     // Write Address REG Checking
-    m_axil_read(32'h8, rd_addr);
+    m_axil_read(32'h44A00008, rd_addr);
     $display("Check Write Status...");
-    #10;
-    wait(rd_addr[31]);
+    $display("Write Address REG is 0x%h", rd_addr);
+    #50;
+    //wait(rd_addr[31]);
     $display("Write Finished");
     // Read Address REG Setting
-    m_axil_write(32'h0, wr_addr, 4'b1111);
+    m_axil_write(32'h44A00000, wr_addr, 4'b1111);
     $display("Write 0x%h in 0x%b to 0x0, Read Addr REG", wr_addr, 4'b1111);
     // Read Address REG Checking
-    m_axil_read(32'h0, rd_addr);
-    #10;
-    wait(rd_addr[31]);
+    m_axil_read(32'h44A00000, rd_addr);
+    #50;
+    //wait(rd_addr[31]);
     $display("Read Finished");
     // Read Data REG Checking
-    m_axil_read(32'h4, rd_data);
+    m_axil_read(32'h44A00004, rd_data);
     $display("Read 0x%h from 0x4, Read Data REG", rd_data);
 
     for (i=0; i<4; i=i+1) begin: wstrb
