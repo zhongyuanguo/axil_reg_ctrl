@@ -1,0 +1,11 @@
+[ADD]
+# emu_top: $emu/src/adc_clk/src/clk_local.v
+
+[OVERRIDE]
+# xadc_digital_core: xadc_digital_core.v($emu/src/overrides/xadc_digital_core/src/xadc_digital_core.v)
+# xdac_digital_core: xdac_digital_core.v($emu/src/overrides/xdac_digital_core/src/xdac_digital_core.v)
+
+[EXCLUDE]
+# transceiver: encoder_8b10.v
+# xdac_digital_core: rst_sync.v
+# xadc_digital_core: rst_sync.v
