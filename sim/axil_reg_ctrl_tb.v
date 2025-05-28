@@ -236,7 +236,7 @@ axil_aresetn    = 0;
 #400
 axil_aresetn    = 1;
 
-#100
+#600
 // ONE WRITE AND ONE CHECK
 
 
@@ -260,15 +260,19 @@ input   [31:0]                  addr;
 
 begin
     @(posedge axil_aclk);
-
     s_axil_awaddr <= addr;
     s_axil_awvalid <= 1;
     s_axil_awprot <= 3'h0;
 
-    wait (s_axil_awready);
+    //wait (s_axil_awready);
+    //@(posedge axil_aclk);
+    //s_axil_awvalid <= 0;
+    while (~s_axil_awready) begin
+        //@(posedge axil_aclk);
+        s_axil_awvalid <= 1;
+    end
     @(posedge axil_aclk);
     s_axil_awvalid <= 0;
-
 end
 endtask
 
@@ -364,17 +368,21 @@ begin
     // Write Address REG Checking
     m_axil_read(32'h44A00008, rd_addr);
     $display("Check Write Status...");
-    $display("Write Address REG is 0x%h", rd_addr);
-    #50;
-    //wait(rd_addr[31]);
+    while (rd_addr[31]) begin
+        $display("Writing...");
+        m_axil_read(32'h44A00008, rd_addr);
+    end
     $display("Write Finished");
     // Read Address REG Setting
     m_axil_write(32'h44A00000, wr_addr, 4'b1111);
     $display("Write 0x%h in 0x%b to 0x0, Read Addr REG", wr_addr, 4'b1111);
     // Read Address REG Checking
     m_axil_read(32'h44A00000, rd_addr);
-    #50;
-    //wait(rd_addr[31]);
+    $display("Check Read Status...");
+    while (rd_addr[31]) begin
+        $display("Reading...");
+        m_axil_read(32'h44A00000, rd_addr);
+    end
     $display("Read Finished");
     // Read Data REG Checking
     m_axil_read(32'h44A00004, rd_data);
