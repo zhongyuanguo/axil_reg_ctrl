@@ -264,15 +264,15 @@ begin
     s_axil_awvalid <= 1;
     s_axil_awprot <= 3'h0;
 
-    //wait (s_axil_awready);
-    //@(posedge axil_aclk);
-    //s_axil_awvalid <= 0;
-    while (~s_axil_awready) begin
-        //@(posedge axil_aclk);
-        s_axil_awvalid <= 1;
-    end
+    wait (s_axil_awready);
     @(posedge axil_aclk);
     s_axil_awvalid <= 0;
+    //DELETE//while (~s_axil_awready) begin
+    //DELETE//    //@(posedge axil_aclk);
+    //DELETE//    s_axil_awvalid <= 1;
+    //DELETE//end
+    //DELETE//@(posedge axil_aclk);
+    //DELETE//s_axil_awvalid <= 0;
 end
 endtask
 
