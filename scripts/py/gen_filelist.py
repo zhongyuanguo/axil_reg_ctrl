@@ -93,15 +93,14 @@ def phase_filter(filter_dir):
                 # command exclude
                 elif command_opt == 3:
                     exc_match = re.match(exc_pat, line. trip())
+                    exc_match = re.match(exc_pat, line.strip())
                     if exc_match:
                         spec_name = exc_match.group(1)
                         file_name = exc_match.group(2)
-                        if spec_name in exc_dict:
-                            exc_dict[spec_name].append(file_name)
-                        else:
+                        if not spec_name in exc_dict:
                             exc_dict[spec_name] = []
-                            exc_dict[spec_name].append(file_name)
-                        #print(f"EXCLUDE NAME: {spec_name}, {file_name}")
+                        exc_dict[spec_name].append(file_name)
+//                        #print(f"EXCLUDE NAME: {spec_name}, {file_name}")
     dict_list.append(add_dict)
     dict_list.append(over_dict)
     dict_list.append(exc_dict)
@@ -119,45 +118,49 @@ def phase_flist(flist_dir):
 # analyze file-list
 # file_path: input file of file-list with directory in abspath
 def analyze_file_list(file_path):
+    """
+    Analyze the given file list and populate component hierarchy.
+    Handles environment variables and resolves relative paths to absolute ones.
+    """
     comment_pat = fl_comment
     fflist_pat = r"^\-[f|F]\s+(.*\.f)"
     srcfile_pat = r"^(.*\.[v|vh|vhd|sv])"
+
     spec_name = os.path.splitext(os.path.basename(file_path))[0]
     component = compile_spec(spec_name, file_path, [], [])
-    target_hand = open(file_path, "r")
-    for line in target_hand:
-        # begin analyze file list
-        # comment "#"
-        skip_match = re.match(comment_pat, line.strip())
-        # *. f
-        fflist_match = re.match(fflist_pat, line.strip())
-        # *. v *. vh *. vhd
-        srcfile_match = re.match(srcfile_pat, line.strip())
-        # +incdir+
-        if skip_match:
-            continue
-        elif fflist_match:
-            line = replace_env_vars_in_path(fflist_match.group(1))
-            fflist_name = os.path.splitext(os.path.basename(line))[0]
-            component.child.append(fflist_name)
-            if not os.path.isabs(line):
-            # conversion of env-variable
-                line = replace_env_vars_in_path(line)
-                if not os.path.isabs(line):
-                    line = os.path.abspath(os.path.join(os.path.dirname(file_path), line))
-            analyze_file_list(line)
-        elif srcfile_match:
-            if not os.path.isabs(line):
-            # conversion of env-variable
-                line = replace_env_vars_in_path(line)
-                if not os.path.isabs(line):
-                    line = os.path.abspath(os.path.join(os.path.dirname(file_path), line))
+
+    with open(file_path, "r") as target_hand:
+        for line in target_hand:
+            stripped_line = line.strip()
+
+            # Skip comments and empty lines
+            if re.match(comment_pat, stripped_line) or not stripped_line:
+                continue
+
+            # Match include file list (-f)
+            fflist_match = re.match(fflist_pat, stripped_line)
+            if fflist_match:
+                # Extract and resolve file list path
+                fflist_path = replace_env_vars_in_path(fflist_match.group(1))
+                resolved_path = os.path.abspath(os.path.join(os.path.dirname(file_path), fflist_path))
+
+                component.child.append(os.path.splitext(os.path.basename(resolved_path))[0])
+                analyze_file_list(resolved_path)
+                continue
+
+            # Match source file entry
+            srcfile_match = re.match(srcfile_pat, stripped_line)
+            if srcfile_match:
+                # conversion of env-variable
+                converted_line = replace_env_vars_in_path(stripped_line)
+                if not os.path.isabs(converted_line):
+                    converted_line = os.path.abspath(os.path.join(os.path.dirname(file_path), converted_line))
+                
+                # Append both the resolved path and original line
+                component.flist.append(converted_line)
                 component.flist.append(line)
-        # skip empty line
-        elif len(line.strip()) == 0:
-            continue
+
     component_list.append(component)
-    return
 
 def filter_component_list(dict_list):
     add_dict = dict_list[0]
@@ -230,8 +233,9 @@ def filter_component_list_pro(dict_list):
     return
 
 def replace_env_vars_in_path(path):
+    # Use proper string formatting for environment variables
     for var in os.environ:
-        env_var = "$"+var
+        env_var = "${}".format(var)
         if env_var in path:
             path = path.replace(env_var, os.environ[var])
     return path.strip()
@@ -332,12 +336,7 @@ def generate_verilog_file_list(output_list):
 
 def generate_vhdl_file_list(output_list):
     vhdl_pattern = r"^/[^/][a-zA-Z0-9_/$\{\]+\.vhd$"
-    vhdl_file_list = []
-    for each in output_list:
-        vhdl_match = re.match(vhdl_pattern, each.strip())
-        if vhdl_match:
-            vhdl_file_list.append(vhdl_match.group())
-    return vhdl_file_list
+    return [each.strip() for each in output_list if re.match(vhdl_pattern, each.strip())]
 
 def list_to_file(file_list, file_name):
     file_hand = open(file_name, "w")
@@ -347,7 +346,10 @@ def list_to_file(file_list, file_name):
         file_hand.close()
     return
 
+# Process filter specifications to get add/override/exclude dictionaries
 dict_list = phase_filter(fter_dir)
+
+# Process file list specifications to build component hierarchy
 phase_flist(flist_dir)
 #filter_component_list(dict_list)
 filter_component_list_pro(dict_list)
