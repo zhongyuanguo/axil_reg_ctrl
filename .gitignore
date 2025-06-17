@@ -1,3 +1,5 @@
 sim/clean_*.sh
 sim/*/
 src/ipgen/
+src/async_fifo/clean_*.sh
+src/async_fifo/*/
